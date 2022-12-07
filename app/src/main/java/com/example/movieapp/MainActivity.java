@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private MovieViewModel mMovieViewModel;
-    private int id = 0;
     private List<Movie> moviesList;
     private RecyclerView mRecyclerView;
 
@@ -67,8 +66,7 @@ public class MainActivity extends AppCompatActivity {
             String title = data.getStringExtra(TITLE_KEY);
             int year = data.getIntExtra(YEAR_KEY, 0);
             String desc = data.getStringExtra(DESCR_KEY);
-            id = moviesList.size();
-            Movie movie = new Movie(id, title, year, desc);
+            Movie movie = new Movie(title, year, desc);
             mMovieViewModel.insert(movie);
         } else {
             Toast.makeText(this, "You did not save any movie", Toast.LENGTH_SHORT).show();
@@ -79,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         mMovieViewModel.deleteAll();
         moviesList.clear();
     }
-
 
 }
 

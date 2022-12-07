@@ -11,36 +11,32 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "movie_table")
 public class Movie {
 
-    @NonNull
-    @PrimaryKey
-    @ColumnInfo(name = "ID")
-    private int mId;
-    @ColumnInfo(name = "title")
-    private String mTitle;
-    @ColumnInfo(name = "year")
-    private int mYear;
-    @ColumnInfo(name = "description")
-    private String mDescription;
 
-    public Movie(int id, String title, int year, String description){
-        mId = id;
-        this.mTitle = title;
-        this.mYear = year;
-        this.mDescription = description;
-    }
-    public int getId(){
-        return mId;
+    @PrimaryKey(autoGenerate = true)
+    public int id;
+
+    @ColumnInfo(name = "title")
+    private String title;
+    @ColumnInfo(name = "year")
+    private int year;
+    @ColumnInfo(name = "description")
+    private String description;
+
+    public Movie(String title, int year, String description){
+        this.title = title;
+        this.year = year;
+        this.description = description;
     }
 
     public String getTitle(){
-        return mTitle;
+        return title;
     }
 
     public String getDescription(){
-        return mDescription;
+        return description;
     }
 
     public int getYear(){
-        return mYear;
+        return year;
     }
 }

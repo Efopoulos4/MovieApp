@@ -13,6 +13,8 @@ public class Movie {
 
     @NonNull
     @PrimaryKey
+    @ColumnInfo(name = "ID")
+    private int mId;
     @ColumnInfo(name = "title")
     private String mTitle;
     @ColumnInfo(name = "year")
@@ -20,10 +22,14 @@ public class Movie {
     @ColumnInfo(name = "description")
     private String mDescription;
 
-    public Movie(String title, int year, String description){
+    public Movie(int id, String title, int year, String description){
+        mId = id;
         this.mTitle = title;
         this.mYear = year;
         this.mDescription = description;
+    }
+    public int getId(){
+        return mId;
     }
 
     public String getTitle(){

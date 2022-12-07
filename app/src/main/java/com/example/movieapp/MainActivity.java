@@ -6,95 +6,80 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.movieapp.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-
 public class MainActivity extends AppCompatActivity {
 
-    private String KEY = "key";
+    private String TAG = "paok";
+
+    private String TITLE_KEY = "title of the movie";
+    private String YEAR_KEY = "year of the movie";
+    private String DESCR_KEY = "description of the movie";
+
     private ActivityMainBinding binding;
     private MovieViewModel mMovieViewModel;
-    private TextView savedMovies;
+    private int id = 0;
+    private List<Movie> moviesList;
+    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        savedMovies = findViewById(R.id.saved_movies_text);
+        mRecyclerView = findViewById(R.id.recyclerView);
+        final MovieListAdapter adapter = new MovieListAdapter(this);
+        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mMovieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
         mMovieViewModel.getAllMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                Toast.makeText(MainActivity.this, "On Change", Toast.LENGTH_SHORT).show();
+                moviesList = movies;
+                adapter.setMovies(movies);
             }
         });
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MovieCreateActivity.class);
                 startActivityForResult(intent, 0);
             }
         });
-
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 0 && resultCode == RESULT_OK) {
-            Log.d("paok", "onActivityResult: ");
-            String title = data.getStringExtra("TITLE");
-            int year = data.getIntExtra("YEAR", 0);
-            String desc = data.getStringExtra("DESC");
-            Movie movie = new Movie(title, year, desc);
+            String title = data.getStringExtra(TITLE_KEY);
+            int year = data.getIntExtra(YEAR_KEY, 0);
+            String desc = data.getStringExtra(DESCR_KEY);
+            id = moviesList.size();
+            Movie movie = new Movie(id, title, year, desc);
             mMovieViewModel.insert(movie);
-        }else{
-            Log.d("paok", " mpaaa: ");
+        } else {
+            Toast.makeText(this, "You did not save any movie", Toast.LENGTH_SHORT).show();
         }
-
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     public void deleteAll(View view) {
         mMovieViewModel.deleteAll();
+        moviesList.clear();
     }
+
+
 }
+

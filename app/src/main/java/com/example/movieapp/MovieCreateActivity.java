@@ -11,6 +11,11 @@ import android.widget.EditText;
 
 public class MovieCreateActivity extends AppCompatActivity {
 
+    private static final String TAG = "paok";
+    private String TITLE_KEY = "title of the movie";
+    private String YEAR_KEY = "year of the movie";
+    private String DESCR_KEY = "description of the movie";
+
     private String title ;
     private String year;
     private String description;
@@ -40,14 +45,15 @@ public class MovieCreateActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(title) || TextUtils.isEmpty(year) || TextUtils.isEmpty(description)) {
                     setResult(RESULT_CANCELED, replyIntent);
                 } else {
-                    replyIntent.putExtra("TITLE", title);
-                    replyIntent.putExtra("YEAR", Integer.parseInt(year));
-                    replyIntent.putExtra("DESC", description);
+                    replyIntent.putExtra(TITLE_KEY, title);
+                    replyIntent.putExtra(YEAR_KEY, Integer.parseInt(year));
+                    replyIntent.putExtra(DESCR_KEY, description);
+
                     setResult(RESULT_OK, replyIntent);
                 }
                 finish();
             }
         });
-
     }
+
 }

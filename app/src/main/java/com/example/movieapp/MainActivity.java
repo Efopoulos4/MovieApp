@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             String date = data.getStringExtra(DATE_KEY);
             String desc = data.getStringExtra(DESCR_KEY);
             Movie movie = new Movie(title, date, desc);
+
             mMovieViewModel.insert(movie);
         } else {
             Toast.makeText(this, "You did not save any movie", Toast.LENGTH_SHORT).show();

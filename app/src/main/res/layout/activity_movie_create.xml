@@ -21,23 +21,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:maxLength="10"
         android:hint="Description"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/year_text" />
-
-    <EditText
-        android:id="@+id/year_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLength="4"
-        android:ems="10"
-        android:hint="Year"
-        android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/desc_text"
+        android:maxLength="10"
+        app:layout_constraintBottom_toTopOf="@+id/date_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_text" />
@@ -46,12 +33,28 @@
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLength="10"
         android:ems="10"
         android:hint="Title"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/year_text"
+        android:maxLength="10"
+        app:layout_constraintBottom_toTopOf="@+id/desc_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/saveMovieButton" />
+
+    <Button
+        android:id="@+id/date_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#7EEFF1F1"
+        android:ems="10"
+        android:hint="Year"
+        android:inputType="number"
+        android:onClick="datePicker"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/desc_text" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

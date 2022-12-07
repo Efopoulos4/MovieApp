@@ -18,11 +18,11 @@ public class Movie {
     @ColumnInfo(name = "title")
     private String title;
     @ColumnInfo(name = "year")
-    private int year;
+    private String year;
     @ColumnInfo(name = "description")
     private String description;
 
-    public Movie(String title, int year, String description){
+    public Movie(String title, String year, String description){
         this.title = title;
         this.year = year;
         this.description = description;
@@ -36,7 +36,7 @@ public class Movie {
         return description;
     }
 
-    public int getYear(){
+    public String getYear(){
         return year;
     }
 }

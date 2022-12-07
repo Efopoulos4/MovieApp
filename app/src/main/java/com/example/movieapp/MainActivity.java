@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.movieapp.databinding.ActivityMainBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -22,10 +21,9 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = "paok";
 
     private String TITLE_KEY = "title of the movie";
-    private String YEAR_KEY = "year of the movie";
+    private String DATE_KEY = "date of the movie";
     private String DESCR_KEY = "description of the movie";
 
-    private ActivityMainBinding binding;
     private MovieViewModel mMovieViewModel;
     private List<Movie> moviesList;
     private RecyclerView mRecyclerView;
@@ -64,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 0 && resultCode == RESULT_OK) {
             String title = data.getStringExtra(TITLE_KEY);
-            int year = data.getIntExtra(YEAR_KEY, 0);
+            String date = data.getStringExtra(DATE_KEY);
             String desc = data.getStringExtra(DESCR_KEY);
-            Movie movie = new Movie(title, year, desc);
+            Movie movie = new Movie(title, date, desc);
             mMovieViewModel.insert(movie);
         } else {
             Toast.makeText(this, "You did not save any movie", Toast.LENGTH_SHORT).show();

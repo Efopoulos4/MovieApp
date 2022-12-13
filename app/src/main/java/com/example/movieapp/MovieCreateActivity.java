@@ -3,8 +3,6 @@ package com.example.movieapp;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.room.ColumnInfo;
-
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -15,18 +13,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 public class MovieCreateActivity extends AppCompatActivity {
@@ -38,23 +33,22 @@ public class MovieCreateActivity extends AppCompatActivity {
     private String DESCR_KEY = "description of the movie";
     private String IMAGE_KEY = "image key";
     private String ID_KEY = "id key";
+    private String IS_FROM_GALLERY_ID = "is from gallery ?";
 
     private int id;
     private String title;
     private String date;
     private String description;
-
     private Button saveMovieButton;
     private EditText titleText;
     private Button dateButton;
     private EditText descText;
-
     private DatePickerDialog datePickerDialog;
-
     private ImageView image;
     private String imageString;
     private final int GALLERY_PHOTO_CODE = 2000;
     private final int TAKE_PHOTO_CODE = 1000;
+    private boolean isFromGallery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,15 +66,16 @@ public class MovieCreateActivity extends AppCompatActivity {
         titleText.setText(intent.getStringExtra(TITLE_KEY));
         dateButton.setText(intent.getStringExtra(DATE_KEY));
         descText.setText(intent.getStringExtra(DESCR_KEY));
+
         if(intent.getStringExtra(IMAGE_KEY) != null) {
             image.setImageURI(Uri.parse(intent.getStringExtra(IMAGE_KEY)));
+            imageString = Uri.parse(intent.getStringExtra(IMAGE_KEY)).toString();
         }
 
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startDialog();
-
             }
         });
 
@@ -95,10 +90,12 @@ public class MovieCreateActivity extends AppCompatActivity {
                     replyIntent.putExtra(TITLE_KEY, title);
                     replyIntent.putExtra(DATE_KEY, date);
                     replyIntent.putExtra(DESCR_KEY, description);
-                    replyIntent.putExtra(IMAGE_KEY, imageString);
+                    replyIntent.putExtra(IS_FROM_GALLERY_ID, isFromGallery);
+                    if(imageString != null) {
+                        replyIntent.putExtra(IMAGE_KEY, imageString);
+                    }
                     replyIntent.putExtra(ID_KEY, id);
                     setResult(RESULT_OK, replyIntent);
-
                 } else {
                     setResult(RESULT_CANCELED, replyIntent);
                 }
@@ -115,7 +112,7 @@ public class MovieCreateActivity extends AppCompatActivity {
         myAlertDialog.setPositiveButton("Gallery",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                         intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         startActivityForResult(intent, GALLERY_PHOTO_CODE);
                     }
@@ -140,17 +137,18 @@ public class MovieCreateActivity extends AppCompatActivity {
         } catch (Exception e) {
             imageString = null;
         }
+
         if (resultCode == RESULT_OK) {
             Uri imageUri;
             if (requestCode == GALLERY_PHOTO_CODE) {
-                Log.d(TAG, "GALLERY_PHOTO_CODE: ");
                 image.setImageURI(data.getData());
+                isFromGallery = true;
             } else if (requestCode == TAKE_PHOTO_CODE) {
-                Log.d(TAG, "TAKE_PHOTO_CODE: ");
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");
                 imageUri = getUriFromBitmap(bitmap, MovieCreateActivity.this);
                 image.setImageURI(imageUri);
                 imageString = imageUri.toString();
+                isFromGallery = false;
             }
         }
     }

@@ -4,14 +4,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-
 @Entity(tableName = "movie_table")
 public class Movie {
 
-
     @PrimaryKey(autoGenerate = true)
     public int id;
-
     @ColumnInfo(name = "title")
     private String title;
     @ColumnInfo(name = "date")

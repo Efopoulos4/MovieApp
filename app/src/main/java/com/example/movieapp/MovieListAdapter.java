@@ -1,19 +1,14 @@
 package com.example.movieapp;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
@@ -48,12 +43,9 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         Movie current = mMovies.get(position);
         try{
             holder.imageView.setImageURI(Uri.parse(current.getImageString()));
-//            Log.d("paok", " 1111 : "+ current.getImageString());
         }catch (Exception e){
-//            Log.d("paok", " 2222 : " + current.getImageString());
             holder.imageView.setImageURI(Uri.parse("https://picsum.photos/id/237/200/300"));
         }
-
         holder.titleTextView.setText(current.getTitle());
         holder.yearTextView.setText(current.getDate());
         holder.descrTextView.setText(current.getDescription());
@@ -89,18 +81,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
             onEditListener.onEditClickListener(getAdapterPosition());
         }
-
-
-//        @Override
-//        public void onClick(View view) {
-//            Movie currentMovie = mMovies.get(getAdapterPosition());
-//            Intent editIntent = new Intent(context, MovieCreateActivity.class);
-//            editIntent.putExtra("EDIT_TITLE", currentMovie.getTitle());
-//            editIntent.putExtra("EDIT_DATE", currentMovie.getDate());
-//            editIntent.putExtra("EDIT_DESCR", currentMovie.getDescription());
-//            context.startActivity(editIntent);
-//        }
     }
+
     public interface onEditListener{
         void onEditClickListener(int position);
     }

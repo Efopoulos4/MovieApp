@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         intent.putExtra(TITLE_KEY, moviesList.get(position).getTitle());
         intent.putExtra(DATE_KEY, moviesList.get(position).getDate());
         intent.putExtra(DESCR_KEY, moviesList.get(position).getDescription());
+        intent.putExtra(IMAGE_KEY, moviesList.get(position).getImageString());
         intent.putExtra(ID_KEY, moviesList.get(position).getId());
         startActivityForResult(intent, 1);
     }

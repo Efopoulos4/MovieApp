@@ -1,9 +1,14 @@
 package com.example.movieapp;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,47 +18,46 @@ import java.util.List;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
 
-
-
-    class MovieViewHolder extends RecyclerView.ViewHolder {
-        private final TextView titleTextView;
-        private final TextView yearTextView;
-        private final TextView descrTextView;
-
-        private MovieViewHolder(View itemView) {
-            super(itemView);
-            titleTextView = itemView.findViewById(R.id.title_text_view);
-            yearTextView = itemView.findViewById(R.id.year_text_view);
-            descrTextView = itemView.findViewById(R.id.descrtiption_text_view);
-
-        }
-    }
-
+    private String TAG = "paok";
     private final LayoutInflater mInflater;
     private List<Movie> mMovies;
+    private Context context;
+    private onEditListener onEditListener;
 
-    public MovieListAdapter(Context context) {
+    public MovieListAdapter(Context context, onEditListener onEditListener) {
+
+        this.onEditListener = onEditListener;
+        this.context = context;
         this.mInflater = LayoutInflater.from(context);
+    }
+
+    void setMovies(List<Movie> movies) {
+        mMovies = movies;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
-        return new MovieViewHolder(itemView);
+        return new MovieViewHolder(itemView, onEditListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie current = mMovies.get(position);
-        holder.titleTextView.setText(current.getTitle());
-        holder.yearTextView.setText(String.valueOf(current.getYear()));
-        holder.descrTextView.setText(current.getDescription());
-    }
+        try{
+            holder.imageView.setImageURI(Uri.parse(current.getImageString()));
+//            Log.d("paok", " 1111 : "+ current.getImageString());
+        }catch (Exception e){
+//            Log.d("paok", " 2222 : " + current.getImageString());
+            holder.imageView.setImageURI(Uri.parse("https://picsum.photos/id/237/200/300"));
+        }
 
-    void setMovies(List<Movie> movies) {
-        mMovies = movies;
-        notifyDataSetChanged();
+        holder.titleTextView.setText(current.getTitle());
+        holder.yearTextView.setText(current.getDate());
+        holder.descrTextView.setText(current.getDescription());
+
     }
 
     @Override
@@ -63,5 +67,42 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         return 0;
     }
 
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final ImageView imageView;
+        private final TextView titleTextView;
+        private final TextView yearTextView;
+        private final TextView descrTextView;
+        onEditListener onEditListener;
+
+        private MovieViewHolder(View itemView, onEditListener onEditListener) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.imageView);
+            titleTextView = itemView.findViewById(R.id.title_text_view);
+            yearTextView = itemView.findViewById(R.id.year_text_view);
+            descrTextView = itemView.findViewById(R.id.descrtiption_text_view);
+            this.onEditListener = onEditListener;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+
+            onEditListener.onEditClickListener(getAdapterPosition());
+        }
+
+
+//        @Override
+//        public void onClick(View view) {
+//            Movie currentMovie = mMovies.get(getAdapterPosition());
+//            Intent editIntent = new Intent(context, MovieCreateActivity.class);
+//            editIntent.putExtra("EDIT_TITLE", currentMovie.getTitle());
+//            editIntent.putExtra("EDIT_DATE", currentMovie.getDate());
+//            editIntent.putExtra("EDIT_DESCR", currentMovie.getDescription());
+//            context.startActivity(editIntent);
+//        }
+    }
+    public interface onEditListener{
+        void onEditClickListener(int position);
+    }
 
 }

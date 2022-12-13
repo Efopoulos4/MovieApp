@@ -2,6 +2,7 @@ package com.example.movieapp;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -21,7 +22,7 @@ public class MovieViewModel extends AndroidViewModel {
         mAllMovies = mMovieDao.getAllMovies();
     }
 
-    public LiveData<List<Movie>> getAllMovies(){
+    public LiveData<List<Movie>> getAllMovies() {
         return mAllMovies;
     }
 
@@ -29,8 +30,37 @@ public class MovieViewModel extends AndroidViewModel {
         new insertAsyncTask(mMovieDao).execute(movie);
     }
 
-    public void deleteAll(){
+    public void update(Movie movie, int id, String title, String date, String desc, String imageString) {
+        new updateAsyncTask(mMovieDao, id, title, date, desc, imageString).execute(movie);
+    }
+
+    public void deleteAll() {
         new deleteAsyncTask(mMovieDao).execute();
+    }
+
+    private static class updateAsyncTask extends AsyncTask<Movie, Void, Void> {
+
+        private MovieDao mAsyncTaskDao;
+        private int id;
+        private String title;
+        private String date;
+        private String desc;
+        private String imageString;
+
+        updateAsyncTask(MovieDao dao, int id, String title, String date, String desc, String imageString) {
+            this.id = id;
+            this.title = title;
+            this.date = date;
+            this.desc = desc;
+            this.imageString = imageString;
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            mAsyncTaskDao.update(id, title, date, desc, imageString);
+            return null;
+        }
     }
 
     private static class insertAsyncTask extends AsyncTask<Movie, Void, Void> {

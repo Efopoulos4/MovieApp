@@ -1,8 +1,5 @@
 package com.example.movieapp;
 
-
-
-import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -17,15 +14,21 @@ public class Movie {
 
     @ColumnInfo(name = "title")
     private String title;
-    @ColumnInfo(name = "year")
-    private String year;
+    @ColumnInfo(name = "date")
+    private String date;
     @ColumnInfo(name = "description")
     private String description;
+    @ColumnInfo(name = "imageString")
+    private String imageString;
 
-    public Movie(String title, String year, String description){
+    public Movie(String title, String date, String description, String imageString){
         this.title = title;
-        this.year = year;
+        this.date = date;
         this.description = description;
+        this.imageString = imageString;
+    }
+    public int getId(){
+        return id;
     }
 
     public String getTitle(){
@@ -36,7 +39,12 @@ public class Movie {
         return description;
     }
 
-    public String getYear(){
-        return year;
+    public String getDate(){
+        return date;
     }
+
+    public String getImageString(){
+        return imageString;
+    }
+
 }

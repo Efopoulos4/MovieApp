@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -16,6 +17,10 @@ public interface MovieDao {
 
     @Query("DELETE FROM movie_table")
     public void deleteAll();
+
+    @Query("UPDATE movie_table SET title= :newTitle, date= :newDate, description= :newDesc, imageString= :newImageString  WHERE id =:id")
+    public void update(int id, String newTitle, String newDate, String newDesc, String newImageString);
+
 
     @Query("SELECT * from movie_table ORDER BY id ASC")
     LiveData<List<Movie>> getAllMovies();

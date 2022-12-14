@@ -2,14 +2,10 @@ package com.example.movieapp;
 
 import android.app.Application;
 import android.os.AsyncTask;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-
 import java.util.List;
-
 
 public class MovieViewModel extends AndroidViewModel {
     private MovieDao mMovieDao;
@@ -22,6 +18,10 @@ public class MovieViewModel extends AndroidViewModel {
         mAllMovies = mMovieDao.getAllMovies();
     }
 
+    /**
+     * returns all the movies saved in the dataBase
+     * @return
+     */
     public LiveData<List<Movie>> getAllMovies() {
         return mAllMovies;
     }
@@ -38,6 +38,9 @@ public class MovieViewModel extends AndroidViewModel {
         new deleteAsyncTask(mMovieDao).execute();
     }
 
+    /**
+     * Async Task for UPDATE action
+     */
     private static class updateAsyncTask extends AsyncTask<Movie, Void, Void> {
 
         private MovieDao mAsyncTaskDao;
@@ -63,6 +66,9 @@ public class MovieViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * Async Task for INSERT action
+     */
     private static class insertAsyncTask extends AsyncTask<Movie, Void, Void> {
 
         private MovieDao mAsyncTaskDao;
@@ -78,6 +84,9 @@ public class MovieViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * Async Task for DELETE action
+     */
     private static class deleteAsyncTask extends AsyncTask<Movie, Void, Void> {
 
         private MovieDao mAsyncTaskDao;

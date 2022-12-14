@@ -18,29 +18,30 @@ public class Movie {
     @ColumnInfo(name = "imageString")
     private String imageString;
 
-    public Movie(String title, String date, String description, String imageString){
+    public Movie(String title, String date, String description, String imageString) {
         this.title = title;
         this.date = date;
         this.description = description;
         this.imageString = imageString;
     }
-    public int getId(){
+
+    public int getId() {
         return id;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return title;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
-    public String getDate(){
+    public String getDate() {
         return date;
     }
 
-    public String getImageString(){
+    public String getImageString() {
         return imageString;
     }
 

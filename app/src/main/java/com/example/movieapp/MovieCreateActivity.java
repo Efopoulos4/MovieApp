@@ -3,6 +3,7 @@ package com.example.movieapp;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,8 +27,6 @@ import java.io.IOException;
 import java.util.Calendar;
 
 public class MovieCreateActivity extends AppCompatActivity {
-
-    private static final String TAG = "paok";
 
     private String TITLE_KEY = "title of the movie";
     private String DATE_KEY = "date of the movie";
@@ -42,7 +42,7 @@ public class MovieCreateActivity extends AppCompatActivity {
     private Button saveMovieButton;
     private EditText titleText;
     private Button dateButton;
-    private EditText descText;
+    private EditText descriptionText;
     private DatePickerDialog datePickerDialog;
     private ImageView image;
     private String imageString;
@@ -58,20 +58,22 @@ public class MovieCreateActivity extends AppCompatActivity {
         saveMovieButton = findViewById(R.id.saveMovieButton);
         titleText = findViewById(R.id.title_text);
         dateButton = findViewById(R.id.date_button);
-        descText = findViewById(R.id.desc_text);
+        descriptionText = findViewById(R.id.desc_text);
         image = findViewById(R.id.image);
 
+        //if the Activity has been called from Edit Movie we fill the fields with the existing values
+        //if the Activity has been called from Insert Movie we just pass the null value and the fields remain empty
         Intent intent = getIntent();
         id = intent.getIntExtra(ID_KEY, 0);
         titleText.setText(intent.getStringExtra(TITLE_KEY));
         dateButton.setText(intent.getStringExtra(DATE_KEY));
-        descText.setText(intent.getStringExtra(DESCR_KEY));
-
-        if(intent.getStringExtra(IMAGE_KEY) != null) {
+        descriptionText.setText(intent.getStringExtra(DESCR_KEY));
+        if (intent.getStringExtra(IMAGE_KEY) != null) {
             image.setImageURI(Uri.parse(intent.getStringExtra(IMAGE_KEY)));
             imageString = Uri.parse(intent.getStringExtra(IMAGE_KEY)).toString();
         }
 
+        //when we click to the imageView a dialog comes up to choose if we want to upload or capture a photo
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,31 +81,35 @@ public class MovieCreateActivity extends AppCompatActivity {
             }
         });
 
+        //We get all the values from the fields (id, title, date, description, imageString)
+        //also whether the photo imported from gallery or captured from camera
+        //We pass them to MainActivity only if there is no empty field, otherwise a message will be displayed
         saveMovieButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 title = titleText.getText().toString();
                 date = dateButton.getText().toString();
-                description = descText.getText().toString();
+                description = descriptionText.getText().toString();
                 Intent replyIntent = new Intent();
-                if (!(TextUtils.isEmpty(title) && TextUtils.isEmpty(date) && TextUtils.isEmpty(description) && TextUtils.isEmpty(imageString))) {
+                if (TextUtils.isEmpty(title) || TextUtils.isEmpty(date) || TextUtils.isEmpty(description) || TextUtils.isEmpty(imageString)) {
+                    setResult(RESULT_CANCELED, replyIntent);
+                } else {
                     replyIntent.putExtra(TITLE_KEY, title);
                     replyIntent.putExtra(DATE_KEY, date);
                     replyIntent.putExtra(DESCR_KEY, description);
                     replyIntent.putExtra(IS_FROM_GALLERY_ID, isFromGallery);
-                    if(imageString != null) {
-                        replyIntent.putExtra(IMAGE_KEY, imageString);
-                    }
+                    replyIntent.putExtra(IMAGE_KEY, imageString);
                     replyIntent.putExtra(ID_KEY, id);
                     setResult(RESULT_OK, replyIntent);
-                } else {
-                    setResult(RESULT_CANCELED, replyIntent);
                 }
                 finish();
             }
         });
     }
 
+    /**
+     * we choose Gallery or Camera to upload or to capture a photo and we start an intent
+     */
     private void startDialog() {
         AlertDialog.Builder myAlertDialog = new AlertDialog.Builder(this);
         myAlertDialog.setTitle("Upload Photo");
@@ -129,6 +135,18 @@ public class MovieCreateActivity extends AppCompatActivity {
         myAlertDialog.show();
     }
 
+    /**
+     * here we receive the intent from the dialog
+     * If we receive the intent from GALLERY_PHOTO_CODE the data type is URI
+     * so we set immediately the selected photo to the imageView
+     * If we receive the intent from TAKE_PHOTO_CODE the data type is Bitmap
+     * so we transform to URI and after we set the photo to the imageView
+     * We use isFromGallery variable to keep this information for save action
+     *
+     * @param requestCode
+     * @param resultCode  is a code to separate the tow actions
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -137,7 +155,6 @@ public class MovieCreateActivity extends AppCompatActivity {
         } catch (Exception e) {
             imageString = null;
         }
-
         if (resultCode == RESULT_OK) {
             Uri imageUri;
             if (requestCode == GALLERY_PHOTO_CODE) {
@@ -153,6 +170,12 @@ public class MovieCreateActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Transform Bitmap to Uri
+     * @param image
+     * @param context
+     * @return
+     */
     private Uri getUriFromBitmap(Bitmap image, Context context) {
         File imageFolder = new File(context.getCacheDir(), "images");
         Uri uri = null;
@@ -172,6 +195,11 @@ public class MovieCreateActivity extends AppCompatActivity {
         return uri;
     }
 
+    /**
+     * We create date picker dialog for date field
+     *
+     * @param view
+     */
     public void datePicker(View view) {
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -189,5 +217,4 @@ public class MovieCreateActivity extends AppCompatActivity {
         datePickerDialog = new DatePickerDialog(this, style, dateSetListener, year, month, day);
         datePickerDialog.show();
     }
-
 }

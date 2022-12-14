@@ -7,20 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
 
-    private String TAG = "paok";
     private final LayoutInflater mInflater;
     private List<Movie> mMovies;
     private Context context;
     private onEditListener onEditListener;
 
     public MovieListAdapter(Context context, onEditListener onEditListener) {
-
         this.onEditListener = onEditListener;
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
@@ -38,18 +38,19 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         return new MovieViewHolder(itemView, onEditListener);
     }
 
+    /**
+     * We fill the movies textView fields based on Movie object attributes
+     *
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie current = mMovies.get(position);
-        try{
-            holder.imageView.setImageURI(Uri.parse(current.getImageString()));
-        }catch (Exception e){
-            holder.imageView.setImageURI(Uri.parse("https://picsum.photos/id/237/200/300"));
-        }
+        holder.imageView.setImageURI(Uri.parse(current.getImageString()));
         holder.titleTextView.setText(current.getTitle());
         holder.yearTextView.setText(current.getDate());
-        holder.descrTextView.setText(current.getDescription());
-
+        holder.descriptionTextView.setText(current.getDescription());
     }
 
     @Override
@@ -63,7 +64,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         private final ImageView imageView;
         private final TextView titleTextView;
         private final TextView yearTextView;
-        private final TextView descrTextView;
+        private final TextView descriptionTextView;
         onEditListener onEditListener;
 
         private MovieViewHolder(View itemView, onEditListener onEditListener) {
@@ -71,20 +72,23 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
             imageView = itemView.findViewById(R.id.imageView);
             titleTextView = itemView.findViewById(R.id.title_text_view);
             yearTextView = itemView.findViewById(R.id.year_text_view);
-            descrTextView = itemView.findViewById(R.id.descrtiption_text_view);
+            descriptionTextView = itemView.findViewById(R.id.descrtiption_text_view);
             this.onEditListener = onEditListener;
             itemView.setOnClickListener(this);
         }
 
+        /**
+         * When the cardView is clicked we handle the action from MainActivity
+         *
+         * @param view
+         */
         @Override
         public void onClick(View view) {
-
             onEditListener.onEditClickListener(getAdapterPosition());
         }
     }
 
-    public interface onEditListener{
+    public interface onEditListener {
         void onEditClickListener(int position);
     }
-
 }

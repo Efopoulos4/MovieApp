@@ -19,7 +19,7 @@ public abstract class MovieRoomDatabase extends RoomDatabase {
             synchronized (MovieRoomDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            MovieRoomDatabase.class, "movie_database")
+                                    MovieRoomDatabase.class, "movie_database")
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -27,5 +27,4 @@ public abstract class MovieRoomDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
 }

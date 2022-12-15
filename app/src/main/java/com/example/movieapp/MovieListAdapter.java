@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieViewHolder> {
+public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    final int VIEW_TYPE_LOADING = 1;
+    final int VIEW_TYPE_ITEM = 0;
     private final LayoutInflater mInflater;
     private List<Movie> mMovies;
     private Context context;
@@ -33,19 +35,35 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
-        return new MovieViewHolder(itemView, onEditListener);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if(viewType == VIEW_TYPE_ITEM) {
+            View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
+            return new MovieViewHolder(itemView, onEditListener);
+        }else {
+            View loadingView = mInflater.inflate(R.layout.loading_item, parent, false);
+            return new LoadingHolder(loadingView);
+        }
     }
 
     /**
-     * We fill the movies textView fields based on Movie object attributes
-     *
+     * We separate if the holder is instance of Movie or LoadingView
      * @param holder
      * @param position
      */
-    @Override
-    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MovieViewHolder) {
+            populateItemRows((MovieViewHolder) holder, position);
+        } else {
+            showLoadingView((LoadingHolder) holder, position);
+        }
+    }
+
+    /**
+     * if its instance of Movie we fill the fields with the values we have passed passed on the list
+     * @param holder
+     * @param position
+     */
+    private void populateItemRows(MovieViewHolder holder, int position) {
         Movie current = mMovies.get(position);
         holder.imageView.setImageURI(Uri.parse(current.getImageString()));
         holder.titleTextView.setText(current.getTitle());
@@ -53,11 +71,30 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         holder.descriptionTextView.setText(current.getDescription());
     }
 
+
+    private void showLoadingView(LoadingHolder viewHolder, int position) {
+    }
+
     @Override
     public int getItemCount() {
         if (mMovies != null)
             return mMovies.size();
         return 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(mMovies.get(position) == null) {
+            return VIEW_TYPE_LOADING;
+        } else {
+            return VIEW_TYPE_ITEM;
+        }
+    }
+
+    public static class LoadingHolder extends RecyclerView.ViewHolder {
+        public LoadingHolder(@NonNull View itemView) {
+            super(itemView);
+        }
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

@@ -1,17 +1,23 @@
 package com.example.movieapp;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.onEditListener {
@@ -26,6 +32,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private MovieViewModel movieViewModel;
     private List<Movie> moviesList;
     private RecyclerView recyclerView;
+    private MovieListAdapter adapter;
+    private boolean isLoading = false;
+    private Button randButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
-        final MovieListAdapter adapter = new MovieListAdapter(this, this);
+        adapter = new MovieListAdapter(this, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -46,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             }
         });
 
+        //fab starts the insert intent (requestCode = 0)
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +64,69 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 startActivityForResult(intent, 0);
             }
         });
+
+        //rand button just adds one new movie with default values
+        randButton = findViewById(R.id.button_add_random);
+        randButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = "randTitle";
+                String date = "30/5/2000";
+                String desc = "randDesc";
+                String imageString = "content://com.example.movieapp.provider/external_files/images/captured_image.jpg";
+                Movie movie = new Movie(title, date, desc, imageString);
+                movieViewModel.insert(movie);
+            }
+        });
+
+        //Every time we scroll till the end of the recycler view we show a loading bar
+        //and add 10 more Movies in the dataBase
+        //This action is activated only if the screen is filled with cardViews in this case we need at least 5 movies (moviesList.size() > 4)
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                super.onScrolled(recyclerView, dx, dy);
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == moviesList.size() - 1 && moviesList.size() > 4) {
+                        getMoreData(10);
+                        isLoading = true;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * We add 10 more movies in the dataBase (which updates automatically the recycler view due to LiveData)
+     * And we delay 2 seconds in order to appear the loading bar
+     * @param num is the number of the movies we want to add
+     */
+    private void getMoreData(int num) {
+        moviesList.add(null);
+        recyclerView.post(new Runnable() {
+            public void run() {
+                adapter.notifyItemInserted(moviesList.size() - 1);
+            }
+        });
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (moviesList.size() > 0)
+                    moviesList.remove(moviesList.size() - 1);
+                for (int i = 0; i < num; i++) {
+                    String title = "TITLE";
+                    String date = "0/0/0";
+                    String desc = "DESCRIPTION";
+                    String imageString = "content://com.example.movieapp.provider/external_files/images/captured_image.jpg";
+                    Movie movie = new Movie(title, date, desc, imageString);
+                    movieViewModel.insert(movie);
+                }
+                adapter.notifyDataSetChanged();
+                isLoading = false;
+            }
+        }, 2000);
     }
 
     /**
@@ -67,37 +140,38 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //The resultCode == 0 comes when we insert a Movie
-        if (requestCode == 0 && resultCode == RESULT_OK) {
-            String title = data.getStringExtra(TITLE_KEY);
-            String date = data.getStringExtra(DATE_KEY);
-            String desc = data.getStringExtra(DESCR_KEY);
-            String imageString = data.getStringExtra(IMAGE_KEY);
-            Movie movie = new Movie(title, date, desc, imageString);
-            movieViewModel.insert(movie);
-            //The resultCode == 1 comes when we edit a Movie
-        } else if (requestCode == 1 && resultCode == RESULT_OK) {
-            //Permission check
-            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) && (data.getBooleanExtra(IS_FROM_GALLERY_ID, true))) {
-                getApplicationContext().getContentResolver().takePersistableUriPermission(
-                        Uri.parse(data.getStringExtra(IMAGE_KEY)),
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            }
+        if (resultCode == RESULT_OK) {
             String title = data.getStringExtra(TITLE_KEY);
             String date = data.getStringExtra(DATE_KEY);
             String desc = data.getStringExtra(DESCR_KEY);
             String imageString = data.getStringExtra(IMAGE_KEY);
             int id = data.getIntExtra(ID_KEY, 0);
             Movie movie = new Movie(title, date, desc, imageString);
-            movieViewModel.update(movie, id, title, date, desc, imageString);
+            if (requestCode == 0) { //The requestCode == 0 comes when we insert a Movie
+                movieViewModel.insert(movie);
+            } else if (requestCode == 1) { //The requestCode == 1 comes when we edit a Movie
+                //Permission check
+//                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) && (data.getBooleanExtra(IS_FROM_GALLERY_ID, true))) {
+//                    getApplicationContext().getContentResolver().takePersistableUriPermission(
+//                            Uri.parse(data.getStringExtra(IMAGE_KEY)),
+//                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//                }
+                movieViewModel.update(movie, id, title, date, desc, imageString);
+            }
         } else {
             Toast.makeText(this, "You did not save any movie", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * We enable the reset button only if there is no loading process running
+     * @param view
+     */
     public void deleteAll(View view) {
-        movieViewModel.deleteAll();
-        moviesList.clear();
+        if(!isLoading) {
+            movieViewModel.deleteAll();
+            moviesList.clear();
+        }
     }
 
     /**
